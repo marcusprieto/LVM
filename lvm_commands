@@ -1,0 +1,46 @@
+
+# Verificar quais volumes estão disponíveis ou em uso
+fdisk -l 
+
+/dev/sdb (disco físico para uso, nesse caso)
+
+# Criando um volume exemplo:
+pvcreate /dev/sdb1
+
+# Consultando volumes, comandos abaixo visualizam volumes já criados 
+# pvscan / pvs / pvdisplay
+
+pvdisplay /dev/sdb1
+
+# Agora, iremos criar um VG para agrupar um ou mais volumes existentes
+# Isso depende muito da necessidade de cada ambiente
+
+# Nesse caso, não iremos agrupar PV's
+vgcreate "Nome do volume" /dev/sdb1 (VG)
+
+# Criar volume lógico
+lvcreate -L 1GB -n lvdados "Nome do volume VG"
+
+
+lvcreate -l 100 -n lvdados2 "Nome do volume"
+# Onde diferente do comando acima, o parâmetro "-l" serve para
+# especificar o tamanho da partição definindo esse tamanho pelos PE's,
+# em nosso caso criamos com um tamanho de 100 PE's que ficaria como:
+
+# 100 * 4 = 400 MB - Esse é o tamanho da partição que criamos.
+
+lvs "Nome do volume VG"
+
+ls -ltr /dev/"Nome do volume VG"
+
+# Formatar as partições criadas (-m 0 não deixa espaço para MBR)
+mkfs.ext4 -m 0 /dev/mapper/"Nome do volmeVG-lvdados"
+
+# Criando uma partição 
+mkdir /mnt/lvdados
+
+# Montando a partição criando com sistema de arquivos ext4
+mount.ext4 /dev/mapper/"Nome do volume"VG-lvdados /mnt/lvdadps
+
+# Após passos acima, necessário inserir a linha de montagem da partição em questão
+# no /etc/fstab
