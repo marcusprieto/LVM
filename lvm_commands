@@ -4,43 +4,46 @@ fdisk -l
 
 /dev/sdb (disco físico para uso, nesse caso)
 
-# Criando um volume exemplo:
-pvcreate /dev/sdb1
+# Criando um volume físico com o disco todo, exemplo:
+pvcreate /dev/sdb (disco de 2GB)
+pvcreate /dev/sdc (disco de 2GB)
 
-# Consultando volumes, comandos abaixo visualizam volumes já criados 
-# pvscan / pvs / pvdisplay
-
-pvdisplay /dev/sdb1
+# Para consultar volumes, podemos utilizar os comandos: 
+# pvscan ou pvs ou pvdisplay
 
 # Agora, iremos criar um VG para agrupar um ou mais volumes existentes
 # Isso depende muito da necessidade de cada ambiente
 
-# Nesse caso, não iremos agrupar PV's
-vgcreate "Nome do volume" /dev/sdb1 (VG)
+vgcreate "Nome do volume" /dev/sdb
+vgcreate "lvdados" /dev/sdb
 
-# Criar volume lógico
-lvcreate -L 1GB -n lvdados "Nome do volume VG"
+# Para agrupar mais de um discos físico, podemos fazer:
 
+vgcreate "lvdados" /dev/sdb /dev/sdc (Volume criado tem 4GB de capacidade de armazenamento)
 
+# Para criar volume lógico de 1GB
+lvcreate -L 1GB -n dados lvdados
+
+##########################################################################
 lvcreate -l 100 -n lvdados2 "Nome do volume"
 # Onde diferente do comando acima, o parâmetro "-l" serve para
 # especificar o tamanho da partição definindo esse tamanho pelos PE's,
 # em nosso caso criamos com um tamanho de 100 PE's que ficaria como:
-
 # 100 * 4 = 400 MB - Esse é o tamanho da partição que criamos.
+##########################################################################
 
-lvs "Nome do volume VG"
+lvs lvdados
 
-ls -ltr /dev/"Nome do volume VG"
+ls -ltr /dev/mapper/lvdados
 
 # Formatar as partições criadas (-m 0 não deixa espaço para MBR)
-mkfs.ext4 -m 0 /dev/mapper/"Nome do volmeVG-lvdados"
+mkfs.ext4 -m 0 /dev/mapper/lvdados-dados"
 
 # Criando uma partição 
 mkdir /mnt/lvdados
 
 # Montando a partição criando com sistema de arquivos ext4
-mount.ext4 /dev/mapper/"Nome do volume"VG-lvdados /mnt/lvdadps
+mount.ext4 /dev/mapper/"Nome do volume"VG-lvdados /mnt/lvdados
 
 # Após passos acima, necessário inserir a linha de montagem da partição em questão
 # no /etc/fstab
