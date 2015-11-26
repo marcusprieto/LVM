@@ -21,7 +21,17 @@ vgcreate "lvdados" /dev/sdb
 
 vgcreate "lvdados" /dev/sdb /dev/sdc (Volume criado tem 4GB de capacidade de armazenamento)
 
-# Para criar volume lógico de 1GB
+# Após criacão do VG, precisamos ativar o Volume Grupo com o comando:
+
+vgchange -a -y lvdados
+
+# Para remover Volumes, não podemos ter volumes lógicos criados e precisamos
+# desativar o volume antes de remove-lo, os comandos abaixo mostram isso:
+
+vgchange -a -n lvdados (Desativa o volume lvdados)
+vgremove lvdados (Remove o volume)
+
+# Para criar volume lógico de 1GB dentro do grupo criado, faça:
 lvcreate -L 1GB -n dados lvdados
 
 ##########################################################################
