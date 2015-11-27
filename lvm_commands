@@ -57,3 +57,24 @@ mount.ext4 /dev/mapper/"Nome do volume"VG-lvdados /mnt/lvdados
 
 # Após passos acima, necessário inserir a linha de montagem da partição em questão
 # no /etc/fstab
+
+# Adicionado volume fisico em um VG existente
+pvcreate /dev/sdd
+
+#Atribuindo novo volume físico ao VG
+vgextend lvdados /dev/sdd
+
+# Demontando o volume lógico
+umount /dev/mapper/dados
+
+# Aumentando o volume lógico
+lvextend -L + 14000M /dev/mapper/dados
+
+# Fazer uma checagem para verificação de erros na partição
+e2fsck -f /dev/mapper/dados
+
+# Aumentando a partição
+resize2fs /dev/mapper/dados
+
+# Montando a partição
+mount /dev/mapper/dados /mnt/lvdados
